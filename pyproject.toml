@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autopatch"
+version = "0.1.0"
+description = "Self-healing codebase agent: reproduces a bug in a Docker sandbox, asks an LLM for a fix, and opens a PR."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2",
+    "docker>=7.0",
+    "PyGithub>=2.1",
+    "openai>=1.40",
+    "pydantic>=2.5",
+    "pydantic-settings>=2.1",
+    "typer>=0.12",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+viewer = ["streamlit>=1.35"]
+
+[project.scripts]
+autopatch = "autopatch.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autopatch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "docker: needs a running Docker daemon and the sandbox image",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
