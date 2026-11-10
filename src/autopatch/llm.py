@@ -86,7 +86,13 @@ def _complete(messages: list[dict[str, str]]) -> str:
     global _tokens_used
     try:
         response = _client().chat.completions.create(
-            model=settings.openrouter_model, messages=messages, temperature=0
+            model=settings.openrouter_model,
+            messages=messages,
+            temperature=0,
+            # Cap completion size. Without this the SDK/model may request ~64k max_tokens,
+            # which OpenRouter rejects on low-credit keys (402). Configurable via
+            # MAX_OUTPUT_TOKENS (default 2048).
+            max_tokens=settings.max_output_tokens,
         )
     except OpenAIError as exc:
         raise LLMError(f"LLM request failed ({type(exc).__name__}): {redact(str(exc))}") from exc

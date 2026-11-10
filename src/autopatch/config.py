@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     sandbox_memory: str = "512m"
     max_attempts: int = 3
     max_context_chars: int = 30000
+    max_output_tokens: int = 2048
     runs_dir: str = "runs"
     work_dir: str = ""  # where working copies are created; empty = system temp dir
 

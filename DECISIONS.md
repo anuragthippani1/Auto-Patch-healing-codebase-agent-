@@ -189,3 +189,8 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   and checks the request (`Authorization: Bearer <key>`, `/chat/completions`, model,
   `temperature=0`) and the handling of a 401. Added because the invalid-key run above
   returned "Missing Authentication header", and that needed ruling out as a client bug.
+- **`max_tokens` on every completion** (`MAX_OUTPUT_TOKENS`, default 2048). Without an
+  explicit cap the client asked for ~64000, and OpenRouter returned 402 on a low-credit
+  key. It was first set to 1024 to keep completions small and leave credit for the
+  prompt; raised to a configurable 2048 default so harder multi-edit replies are less
+  likely to truncate while still avoiding the uncapped ~64k request.

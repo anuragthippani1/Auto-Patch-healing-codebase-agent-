@@ -135,5 +135,6 @@ def test_complete_uses_model_and_temperature_zero(monkeypatch: pytest.MonkeyPatc
     before = llm.tokens_used()
     assert llm._complete([{"role": "user", "content": "hi"}]) == "reply text"
     assert seen["temperature"] == 0
+    assert seen["max_tokens"] == llm.settings.max_output_tokens
     assert seen["model"] == llm.settings.openrouter_model
     assert llm.tokens_used() == before + 42

@@ -74,6 +74,7 @@ def test_request_carries_key_model_and_temperature(server: type[_FakeOpenRouter]
     assert request["auth"] == "Bearer sk-or-test-key"
     assert request["body"]["model"] == "anthropic/claude-sonnet-4.5"
     assert request["body"]["temperature"] == 0
+    assert request["body"]["max_tokens"] == 2048
     assert [message["role"] for message in request["body"]["messages"]] == ["system", "user"]
 
 

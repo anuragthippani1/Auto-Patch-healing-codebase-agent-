@@ -12,15 +12,13 @@ a minute.
 
 ## Project status
 
-Built and verified without API keys, so these things are still open:
-
 | Area | State |
 |---|---|
-| Sandbox, edits, localization, graph loop, CLI, PR guard, eval harness | Tested: 150 tests pass on macOS, 13 of them against the real Docker sandbox |
-| GitHub Actions CI, and Linux in general | **Not run yet.** The workflow file exists but has never executed |
-| Real LLM call through OpenRouter | **Not run yet.** Needs `OPENROUTER_API_KEY`. Only mocked so far |
+| Sandbox, edits, localization, graph loop, CLI, PR guard, eval harness | Tested locally (unit + Docker sandbox) and in GitHub Actions |
+| GitHub Actions CI | **Passing** on GitHub (Linux) |
+| Real LLM call through OpenRouter | Exercised with a live key; mocked in tests |
 | Real pull request on GitHub | **Not run yet.** Needs `GITHUB_TOKEN`. Tested against a local bare repo and a fake API client |
-| Eval numbers | **Not run yet.** `autopatch eval` fills in the table below |
+| Eval | **Full eval pending.** Numbers appear here only after a complete `autopatch eval` writes `eval/results.md` |
 
 ## How it works
 
@@ -105,7 +103,7 @@ autopatch fix --repo https://github.com/OWNER/REPO --issue 12
 Exit code of `fix`: `0` fixed, `1` failed (or a usage or configuration error), `2` no_repro.
 
 Settings are read from `.env` (see `.env.example`): model, sandbox image, timeout, memory
-limit, `MAX_ATTEMPTS`, `MAX_CONTEXT_CHARS`.
+limit, `MAX_ATTEMPTS`, `MAX_CONTEXT_CHARS`, `MAX_OUTPUT_TOKENS`.
 
 ### Run viewer (optional)
 
