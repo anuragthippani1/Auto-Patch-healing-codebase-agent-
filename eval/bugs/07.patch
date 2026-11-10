@@ -1,0 +1,11 @@
+diff --git a/toolkit/stack.py b/toolkit/stack.py
+--- a/toolkit/stack.py
++++ b/toolkit/stack.py
+@@ -40,6 +40,6 @@ def balanced_brackets(text: str) -> bool:
+         if char in PAIRS.values():
+             stack.push(char)
+         elif char in PAIRS:
+-            if stack.is_empty() or stack.pop() != PAIRS[char]:
++            if stack.pop() != PAIRS[char]:
+                 return False
+     return stack.is_empty()

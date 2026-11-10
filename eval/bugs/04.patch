@@ -1,0 +1,12 @@
+diff --git a/toolkit/mathutils.py b/toolkit/mathutils.py
+--- a/toolkit/mathutils.py
++++ b/toolkit/mathutils.py
+@@ -12,7 +12,7 @@ def scale_to_unit(value: float, low: float, high: float) -> float:
+     """Map `value` from [low, high] onto [0, 1]. Values outside the range are clamped."""
+     if low == high:
+         raise ValueError("low and high must differ")
+-    bounded = clamp(value, low, high)
++    bounded = clamp(value, high, low)
+     return (bounded - low) / (high - low)
+ 
+ 

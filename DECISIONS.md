@@ -133,3 +133,29 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   available. What is tested instead: commit and push against a local bare repository
   (only the `autopatch/*` branch appears, `main` does not move, pushes to `main`/`master`
   raise), and `open_pr` with a fake PyGithub client.
+
+## M7: Evaluation
+
+- **The eval target is a package called `toolkit`** with the ten modules the spec suggests.
+  Bugs: 01 off-by-one (`strings`), 02 wrong operator (`cart`), 03 `<` vs `<=`
+  (`inventory`), 04 swapped arguments (`mathutils`), 05 wrong default (`parser`),
+  06 mutable default (`inventory`), 07 missing empty-stack check (`stack`), 08 wrong
+  format spec (`dates`), 09 two functions (`cache`), 10 wrong window algorithm
+  (`pagination`). `validators` has no bug.
+- **Difficulty lives in a dict in `run_eval.py`**, not in the issue files, so `NN.md` stays
+  pure issue text.
+- **"Confirm baseline tests fail" uses the agent's own baseline run.** A bug whose tests
+  already pass comes back as `no_repro` and is shown as "skipped (baseline tests pass)".
+  This avoids a second sandbox run per bug. `--check` does the same check with no LLM.
+- **Averages exclude skipped bugs; the fixed count is out of all bugs run.**
+- **`eval/results.md` and the README block are only written by a full run** (all ten
+  bugs). `--only` prints the table but leaves the saved results alone. The README block
+  between the `eval-results` markers is replaced automatically.
+- **A Tokens column is added only if the API reported usage.**
+- **`eval/results.md` does NOT exist yet and the README has no numbers**: the real eval
+  needs `OPENROUTER_API_KEY`, which was not available. Nothing was invented. What was
+  verified: `--check` (clean repo passes, all ten bugs fail in the sandbox), and a test
+  that runs the whole harness with a scripted "oracle" reply (the reverse of each patch),
+  which shows every bug is fixable through the edit mechanism and that the buggy file
+  reaches the prompt. That test writes to a temp directory and measures nothing about a
+  real model.

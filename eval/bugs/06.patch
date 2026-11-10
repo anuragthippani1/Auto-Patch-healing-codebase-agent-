@@ -1,0 +1,14 @@
+diff --git a/toolkit/inventory.py b/toolkit/inventory.py
+--- a/toolkit/inventory.py
++++ b/toolkit/inventory.py
+@@ -4,8 +4,8 @@
+ class Inventory:
+     """Tracks how many units of each item are in stock."""
+ 
+-    def __init__(self, items: dict[str, int] | None = None) -> None:
+-        self._items: dict[str, int] = dict(items) if items else {}
++    def __init__(self, items: dict[str, int] = {}) -> None:
++        self._items: dict[str, int] = items
+ 
+     def add(self, name: str, quantity: int = 1) -> None:
+         """Add `quantity` units of `name`."""

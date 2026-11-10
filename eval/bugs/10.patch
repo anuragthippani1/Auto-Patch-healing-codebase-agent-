@@ -1,0 +1,13 @@
+diff --git a/toolkit/pagination.py b/toolkit/pagination.py
+--- a/toolkit/pagination.py
++++ b/toolkit/pagination.py
+@@ -28,6 +28,6 @@ def page_window(current: int, total_pages: int, size: int = 5) -> list[int]:
+     if total_pages <= 0:
+         return []
+     size = min(size, total_pages)
+-    start = current - size // 2
+-    start = max(1, min(start, total_pages - size + 1))
+-    return list(range(start, start + size))
++    start = max(1, current - size // 2)
++    end = min(total_pages, current + size // 2)
++    return list(range(start, end + 1))

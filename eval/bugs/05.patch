@@ -1,0 +1,12 @@
+diff --git a/toolkit/parser.py b/toolkit/parser.py
+--- a/toolkit/parser.py
++++ b/toolkit/parser.py
+@@ -29,7 +29,7 @@ def parse_key_value(line: str, sep: str = "=") -> tuple[str, str]:
+     return key.strip(), value.strip()
+ 
+ 
+-def parse_config(text: str, comment_char: str = "#") -> dict[str, str]:
++def parse_config(text: str, comment_char: str = ";") -> dict[str, str]:
+     """Parse 'key = value' lines. Blank lines and comment lines are ignored."""
+     result: dict[str, str] = {}
+     for raw in text.splitlines():
