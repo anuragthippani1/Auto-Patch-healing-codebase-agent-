@@ -1,0 +1,21 @@
+# Run AutoPatch in a container:
+#   docker compose run --rm autopatch build-sandbox
+#   docker compose run --rm autopatch fix --repo https://github.com/OWNER/REPO --issue 12
+#
+# SECURITY: mounting /var/run/docker.sock gives this container control of the host's
+# Docker daemon, which is equivalent to root on the host. See "Safety design" in README.md.
+services:
+  autopatch:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: .env
+    environment:
+      # Sandbox containers are started by the HOST daemon, so the working copy must be at
+      # a path that is the same on the host and in this container.
+      WORK_DIR: /tmp/autopatch-work
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/autopatch-work:/tmp/autopatch-work
+      - ./runs:/app/runs
+      - ./eval:/app/eval

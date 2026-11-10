@@ -159,3 +159,25 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   which shows every bug is fixable through the edit mechanism and that the buggy file
   reaches the prompt. That test writes to a temp directory and measures nothing about a
   real model.
+
+## M8: Polish
+
+- **The sandbox runs as the host user's uid:gid, not root** (added to the spec's container
+  options). On Linux, a container root with `cap_drop=["ALL"]` cannot read a bind-mounted
+  directory that another user owns with mode `0700`, which is what `mkdtemp` and pytest's
+  `tmp_path` create. Docker Desktop on macOS hides this. Running as the owner fixes it and
+  is safer than root. Not yet confirmed on a real Linux host: CI has never run.
+- **A second image, `docker/Dockerfile`,** is the "project image" that `docker-compose.yml`
+  builds. It installs git and the package. `.dockerignore` keeps `.env` out of it.
+- **docker-compose shares `/tmp/autopatch-work` at the same path on host and container**
+  and sets `WORK_DIR` to it. Sandbox containers are started by the host daemon, so a bind
+  mount source must be a host path; a container-only temp dir would mount as empty.
+  Verified on macOS with `docker compose run --rm autopatch eval --check`.
+- **`eval --check` copies each repo with `clone()` before the sandbox run**, the same as the
+  agent does, so it also works under docker-compose.
+- **Streamlit viewer** lives in `src/autopatch/viewer.py` behind the `viewer` extra. The
+  run-listing helpers are in `logging_utils.py` so they are tested without Streamlit; the
+  page itself has a smoke test that is skipped when Streamlit is not installed (as in CI).
+- **No demo GIF or video** was recorded; the README says so.
+- **Not verified on a fresh clone with a real key.** The README quickstart was run on a
+  fresh clone up to the model call (see the final summary for exactly what ran).

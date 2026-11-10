@@ -38,6 +38,21 @@ def log_event(run_id: str, node: str, summary: str, data: dict | None = None) ->
     console.print(f"[dim]{stamp}[/dim] [bold cyan]{node:<18}[/bold cyan] {escape(summary)}")
 
 
+def list_runs(runs_dir: str | Path | None = None) -> list[Path]:
+    """Run directories that have an event log, newest first."""
+    root = Path(runs_dir or settings.runs_dir)
+    if not root.is_dir():
+        return []
+    runs = [path for path in root.iterdir() if (path / "events.jsonl").is_file()]
+    return sorted(runs, key=lambda path: (path / "events.jsonl").stat().st_mtime, reverse=True)
+
+
+def read_events(run_path: Path) -> list[dict]:
+    """Events of one run, in the order they were logged."""
+    lines = (run_path / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines if line.strip()]
+
+
 def write_artifact(run_id: str, name: str, content: str) -> Path:
     """Write a text file into the run directory and return its path."""
     path = run_dir(run_id) / name

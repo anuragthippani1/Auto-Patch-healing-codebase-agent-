@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -65,6 +66,18 @@ def test_mount_is_read_only(tmp_path: Path) -> None:
     result = run_pytest(_repo(tmp_path, body))
     assert result.passed is True, result.stdout
     assert sorted(p.name for p in tmp_path.iterdir()) == ["test_sample.py"]
+
+
+def test_runs_as_the_host_user(tmp_path: Path) -> None:
+    body = f"import os\n\ndef test_uid():\n    assert os.getuid() == {os.getuid()}\n"
+    result = run_pytest(_repo(tmp_path, body))
+    assert result.passed is True, result.stdout
+
+
+def test_reads_repo_that_only_its_owner_can_access(tmp_path: Path) -> None:
+    tmp_path.chmod(0o700)
+    result = run_pytest(_repo(tmp_path, "def test_ok():\n    assert True\n"))
+    assert result.passed is True, result.stdout
 
 
 def test_missing_image_has_clear_message(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

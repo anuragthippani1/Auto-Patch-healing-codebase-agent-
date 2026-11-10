@@ -1,0 +1,9 @@
+# Never copy secrets or local state into an image.
+.env
+.git
+.venv
+venv
+runs
+**/__pycache__
+.pytest_cache
+.ruff_cache

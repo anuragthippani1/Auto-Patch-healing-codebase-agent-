@@ -34,6 +34,17 @@ def _client() -> docker.DockerClient:
         raise SandboxError("Cannot reach the Docker daemon. Is Docker running?") from exc
 
 
+def _host_user() -> str | None:
+    """'uid:gid' of the current user, so the container can read the mounted repo.
+
+    On Linux a container root with all capabilities dropped cannot read files owned by
+    another user, so the tests run as the owner of the working copy instead.
+    """
+    if not hasattr(os, "getuid"):
+        return None
+    return f"{os.getuid()}:{os.getgid()}"
+
+
 def _start_container(client: docker.DockerClient, repo_path: str) -> Container:
     """Create and start the sandbox container. Never pulls images."""
     try:
@@ -42,6 +53,7 @@ def _start_container(client: docker.DockerClient, repo_path: str) -> Container:
             PYTEST_CMD,
             working_dir="/work",
             volumes={repo_path: {"bind": "/work", "mode": "ro"}},  # read-only mount
+            user=_host_user(),
             network_mode="none",
             mem_limit=settings.sandbox_memory,
             nano_cpus=1_000_000_000,

@@ -20,8 +20,9 @@ from rich.table import Table
 
 from autopatch import sandbox
 from autopatch.config import ConfigError, settings
-from autopatch.github_ops import run_git
+from autopatch.github_ops import cleanup, clone, run_git
 from autopatch.graph import run_agent
+from autopatch.models import SandboxResult
 
 EVAL_DIR = Path(__file__).resolve().parent
 CLEAN_REPO = EVAL_DIR / "clean_repo"
@@ -128,14 +129,23 @@ def update_readme(table: str) -> None:
     README.write_text(text[:start] + block + text[end:], encoding="utf-8")
 
 
+def sandbox_result(repo: Path) -> SandboxResult:
+    """Run the sandbox on a working copy of `repo` (same copy step as the agent uses)."""
+    repo_path, _ = clone(str(repo))
+    try:
+        return sandbox.run_pytest(repo_path)
+    finally:
+        cleanup(repo_path)
+
+
 def check_bugs(bug_ids: list[str], workspace: Path) -> int:
     """Without any LLM call: clean tests must pass and every bug must make them fail."""
-    clean = sandbox.run_pytest(str(CLEAN_REPO))
+    clean = sandbox_result(CLEAN_REPO)
     console.print(f"clean repo: {'passes' if clean.passed else 'FAILS'}")
     problems = 0 if clean.passed else 1
     table = Table("Bug", "Difficulty", "Baseline", "First failure")
     for bug_id in bug_ids:
-        result = sandbox.run_pytest(str(prepare_repo(bug_id, workspace)))
+        result = sandbox_result(prepare_repo(bug_id, workspace))
         failed = [line for line in result.stdout.splitlines() if line.startswith("FAILED")]
         problems += result.passed
         outcome = "PASSES (bug not detected)" if result.passed else "fails"
