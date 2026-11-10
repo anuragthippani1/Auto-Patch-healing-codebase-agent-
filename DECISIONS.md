@@ -17,3 +17,20 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   `route_after_tests` is pure and does not read global settings), `baseline_log`,
   `baseline_exit_code`, `apply_ok`, `reasoning`, `diff`, `history`, `tokens`, `started_at`,
   `duration_s`. Each is explained where it is used below.
+
+## M2: Sandbox
+
+- **`containers.create` + `start` instead of `containers.run`.** `run` silently tries to
+  pull a missing image from a registry. `create` fails at once with `ImageNotFound`, which
+  becomes a `SandboxError` telling the user to run `autopatch build-sandbox`.
+- **Only timeouts count as `timed_out`.** The spec's sketch catches every `Exception` in
+  `container.wait`. Only `ReadTimeout` / `ConnectionError` are caught here, so a real Docker
+  API failure surfaces as an error and is not misreported as a slow test.
+- **A timeout appends a line to the log** (`[autopatch] Test run timed out ...`), so the LLM
+  feedback explains why there is no pytest summary.
+- **`build-sandbox` sends only the Dockerfile**, not the repo as build context. The
+  Dockerfile copies nothing, and this avoids uploading `.venv/` to the daemon.
+- **`AUTOPATCH_REQUIRE_DOCKER=1`** turns "docker tests skipped" into a hard error. CI sets
+  it in the docker job so a broken image build cannot produce a green run with zero tests.
+- **Extra sandbox tests:** the read-only mount and the missing-image message are tested in
+  addition to the four cases the spec lists.

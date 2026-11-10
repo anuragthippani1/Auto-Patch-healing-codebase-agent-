@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import typer
+from rich.console import Console
+
+from . import sandbox
+
+console = Console()
 
 app = typer.Typer(
     name="autopatch",
@@ -26,5 +31,11 @@ def eval_cmd() -> None:
 
 @app.command(name="build-sandbox")
 def build_sandbox() -> None:
-    """Build the Docker sandbox image (implemented in M2)."""
-    raise typer.Exit(code=1)
+    """Build the Docker sandbox image used to run tests."""
+    console.print("Building the sandbox image (first build downloads python:3.11-slim)...")
+    try:
+        tag = sandbox.build_image()
+    except sandbox.SandboxError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    console.print(f"[green]Built {tag}[/green]")
