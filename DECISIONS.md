@@ -55,3 +55,19 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   later files may still be added, so the total never exceeds the budget.
 - **Fallback triggers when no *source* file was found**, even if a test file was. A log
   that only names the test file still needs source code in the prompt.
+
+## M4: LLM layer
+
+- **`propose_fix` returns `(reasoning, edits)`**, as the parsing paragraph of the spec says
+  (the signature line says `list[Edit]`; the PR body needs the reasoning).
+- **Parsing tolerates prose around the JSON object** as well as code fences: if the reply
+  does not parse, the text from the first `{` to the last `}` is tried before giving up.
+- **A reply with zero edits is an `LLMError`**, the same as invalid JSON, so it triggers the
+  one "Return valid JSON only" retry.
+- **API failures become `LLMError`** with the API key redacted from the message. The agent
+  then records a failed attempt and still writes a report, rather than crashing.
+- **Token counting** is a module-level counter in `llm.py` (`tokens_used()`), fed from the
+  `usage` field of each response. Cost is not computed; OpenRouter prices vary per model.
+- **The M4 "manual smoke test against a real call" has NOT been run**: no
+  `OPENROUTER_API_KEY` was available in the build environment. Only mocked tests cover
+  `llm.py`.
