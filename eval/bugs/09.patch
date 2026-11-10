@@ -1,0 +1,23 @@
+diff --git a/toolkit/cache.py b/toolkit/cache.py
+--- a/toolkit/cache.py
++++ b/toolkit/cache.py
+@@ -17,15 +17,14 @@ class LRUCache:
+         """Return the value for `key` and mark it as recently used."""
+         if key not in self._data:
+             return default
+-        value = self._data.pop(key)
+-        self._data[key] = value
+-        return value
++        return self._data[key]
+ 
+     def put(self, key: object, value: object) -> None:
+         """Store `value` under `key`, evicting the least recently used entry if full."""
+         if key in self._data:
+-            self._data.pop(key)
+-        elif len(self._data) >= self.capacity:
++            self._data[key] = value
++            return
++        if len(self._data) >= self.capacity:
+             oldest = next(iter(self._data))
+             del self._data[oldest]
+         self._data[key] = value

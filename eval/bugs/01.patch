@@ -1,0 +1,12 @@
+diff --git a/toolkit/strings.py b/toolkit/strings.py
+--- a/toolkit/strings.py
++++ b/toolkit/strings.py
+@@ -9,7 +9,7 @@ def truncate(text: str, max_len: int, suffix: str = "...") -> str:
+         raise ValueError("max_len must be at least as long as the suffix")
+     if len(text) <= max_len:
+         return text
+-    keep = max_len - len(suffix)
++    keep = max_len - len(suffix) + 1
+     return text[:keep] + suffix
+ 
+ 

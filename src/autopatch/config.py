@@ -41,3 +41,12 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def redact(text: str) -> str:
+    """Remove any configured secret from text before it is logged or shown."""
+    for secret in (settings.github_token, settings.openrouter_api_key):
+        value = secret.get_secret_value()
+        if value:
+            text = text.replace(value, "***")
+    return text

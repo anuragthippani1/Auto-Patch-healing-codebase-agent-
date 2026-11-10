@@ -1,0 +1,12 @@
+diff --git a/toolkit/cart.py b/toolkit/cart.py
+--- a/toolkit/cart.py
++++ b/toolkit/cart.py
+@@ -22,7 +22,7 @@ class Cart:
+ 
+     def subtotal(self) -> float:
+         """Sum of price times quantity over all lines, before discount and tax."""
+-        return round(sum(price * quantity for _, price, quantity in self._lines), 2)
++        return round(sum(price + quantity for _, price, quantity in self._lines), 2)
+ 
+     def apply_discount(self, percent: float) -> None:
+         """Set a discount between 0 and 100 percent."""

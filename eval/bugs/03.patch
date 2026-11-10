@@ -1,0 +1,12 @@
+diff --git a/toolkit/inventory.py b/toolkit/inventory.py
+--- a/toolkit/inventory.py
++++ b/toolkit/inventory.py
+@@ -27,7 +27,7 @@ class Inventory:
+ 
+     def low_stock(self, threshold: int = 5) -> list[str]:
+         """Names of items whose quantity is at or below `threshold`, sorted."""
+-        return sorted(name for name, qty in self._items.items() if qty <= threshold)
++        return sorted(name for name, qty in self._items.items() if qty < threshold)
+ 
+     def total_units(self) -> int:
+         """Total number of units across all items."""

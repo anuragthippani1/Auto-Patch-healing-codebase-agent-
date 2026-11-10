@@ -9,7 +9,7 @@ from functools import lru_cache
 from openai import OpenAI, OpenAIError
 from pydantic import BaseModel, ValidationError
 
-from .config import settings
+from .config import redact, settings
 from .models import Edit
 from .prompts import RETRY_JSON_PROMPT, SYSTEM_PROMPT, build_user_prompt
 
@@ -89,8 +89,7 @@ def _complete(messages: list[dict[str, str]]) -> str:
             model=settings.openrouter_model, messages=messages, temperature=0
         )
     except OpenAIError as exc:
-        detail = str(exc).replace(settings.openrouter_api_key.get_secret_value() or "\0", "***")
-        raise LLMError(f"LLM request failed ({type(exc).__name__}): {detail}") from exc
+        raise LLMError(f"LLM request failed ({type(exc).__name__}): {redact(str(exc))}") from exc
     if response.usage:
         _tokens_used += response.usage.total_tokens or 0
     if not response.choices:

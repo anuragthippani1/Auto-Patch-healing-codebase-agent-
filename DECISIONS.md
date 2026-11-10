@@ -71,3 +71,40 @@ Choices made where the spec was ambiguous, and anything added beyond it.
 - **The M4 "manual smoke test against a real call" has NOT been run**: no
   `OPENROUTER_API_KEY` was available in the build environment. Only mocked tests cover
   `llm.py`.
+
+## M5: LangGraph loop
+
+- **Each attempt starts from the original code.** `git checkout -- .` runs first, then the
+  new edit set replaces the old one (the spec's "simplest" option). Because the LLM is then
+  shown the unpatched files, the feedback for a retry includes the edits it proposed last
+  time plus what happened (edit error, or the tail of the failing test log).
+- **`baseline_log` is kept separately from `test_log`.** The prompt's "failing pytest
+  output" is always the log of the unpatched repo, which matches the files shown. The log
+  of the failed patch goes into the feedback section. Files are picked from both logs.
+- **An extra conditional edge after `propose_and_apply`** (`route_after_apply`). The spec
+  says an `EditError` must skip the test run; this edge does that. LLM errors (bad JSON
+  twice, API failure) take the same path and also count as an attempt.
+- **Baseline exit code 5 (pytest collected no tests) goes straight to `give_up`.** Without
+  tests no fix can be verified, so calling the LLM three times would only cost money.
+- **`run_agent` never raises.** Any exception inside the graph (Docker down, clone failed,
+  push rejected) ends the run with `status="failed"`, the error in `last_error`, and a
+  `report.md`. The graph is consumed with `stream(..., stream_mode="values")` so the state
+  reached before the crash is kept.
+- **`fix.patch` is written on every fixed run**, not only dry runs, so the fix survives
+  even if the push or the PR call fails afterwards. `last_attempt.patch` holds the last
+  diff that was actually applied; it is not written if no edit was ever applied.
+- **The working copy is deleted at the end of every run.** Local paths are copied first,
+  so the user's directory is never modified (and never gets a `.git` added).
+- **Local repos with uncommitted changes:** the copy commits everything as "AutoPatch
+  baseline snapshot", so `git checkout -- .` restores the user's current state, bug included.
+- **CLI argument rules.** A real run needs a GitHub URL and `--issue`. A local path needs
+  `--issue-file` and `--dry-run`. A GitHub URL with `--issue` and `--dry-run` is allowed
+  (fetches the issue, opens no PR). Usage and config errors exit with code 1, keeping
+  exit code 2 for `no_repro`.
+- **`autopatch eval` forwards extra options** to `eval/run_eval.py` (`--only`, `--check`).
+- **`run_eval.py --check`** (not in the spec) verifies, with no LLM call, that the clean repo
+  passes and each patch makes the tests fail. It was needed to validate the bug set
+  without an API key, and is useful when adding bugs.
+- **Evidence for M5 without an API key:** `tests/test_e2e_dry_run.py` runs the real CLI
+  with the real Docker sandbox on eval bug 09 and a scripted model reply (first reply
+  incomplete, second correct). The acceptance command with a real model has NOT been run.
