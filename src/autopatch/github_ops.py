@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 from github import Auth, Github, GithubException
@@ -79,13 +80,26 @@ def _clone_github(full_name: str) -> str:
     return dest
 
 
+def _copy_ignore(work_dir: Path) -> Callable[[str, list[str]], set[str]]:
+    """Ignore function for copytree: junk directories, plus the destination itself."""
+
+    def ignore(directory: str, names: list[str]) -> set[str]:
+        skipped = set(COPY_IGNORE(directory, names))
+        skipped.update(name for name in names if Path(directory, name).resolve() == work_dir)
+        return skipped
+
+    return ignore
+
+
 def _copy_local(path: str) -> str:
     """Copy a local directory to a working copy where every file is committed."""
     source = Path(path).expanduser().resolve()
     if not source.is_dir():
         raise GitError(f"Repository not found: '{path}' is not a GitHub URL or a local directory.")
-    dest = os.path.join(_new_work_dir(), "repo")
-    shutil.copytree(source, dest, symlinks=True, ignore=COPY_IGNORE)
+    work_dir = Path(_new_work_dir()).resolve()
+    dest = str(work_dir / "repo")
+    # The work dir may be inside the source (e.g. WORK_DIR under the repo): never copy it.
+    shutil.copytree(source, dest, symlinks=True, ignore=_copy_ignore(work_dir))
     if not os.path.exists(os.path.join(dest, ".git")):
         run_git(dest, "init", "--quiet")
     run_git(dest, "add", "-A")

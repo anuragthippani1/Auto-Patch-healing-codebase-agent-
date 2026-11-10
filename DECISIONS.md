@@ -105,6 +105,31 @@ Choices made where the spec was ambiguous, and anything added beyond it.
 - **`run_eval.py --check`** (not in the spec) verifies, with no LLM call, that the clean repo
   passes and each patch makes the tests fail. It was needed to validate the bug set
   without an API key, and is useful when adding bugs.
+- **The working copy is never copied into itself.** If `WORK_DIR` lies inside the repo
+  being fixed, the copy skips it (found by a test; it recursed until "File name too long").
 - **Evidence for M5 without an API key:** `tests/test_e2e_dry_run.py` runs the real CLI
   with the real Docker sandbox on eval bug 09 and a scripted model reply (first reply
   incomplete, second correct). The acceptance command with a real model has NOT been run.
+
+## M6: GitHub PR flow
+
+- **The branch guard is a function that raises, not an `assert`.** `assert` disappears
+  under `python -O`. `check_branch_is_safe` raises `UnsafeBranchError` if the branch is the
+  default branch, is `main` or `master`, or does not start with `autopatch/`. It runs in
+  both `commit_fix` and `push_branch`, so neither can be called on a protected branch.
+- **The push uses an explicit refspec** (`refs/heads/<branch>:refs/heads/<branch>`), so git
+  push defaults or config can never move another branch.
+- **The token is not left in `.git/config`.** The spec clones with
+  `https://x-access-token:{token}@github.com/...`. That is still done, but `origin` is then
+  reset to the plain URL and the push passes the authenticated URL on the command line.
+  Every git error message goes through `redact()` before it is raised or logged.
+- **`commit_fix` refuses to commit test files.** A second check behind `apply_edits`: if a
+  staged path is a test file, the commit is aborted.
+- **"Files changed" in the PR body is parsed from the saved diff**, which keeps
+  `build_pr_body` a pure function of the state.
+- **Issue fetching works without a token for public repos** (anonymous PyGithub client),
+  which allows `--issue N --dry-run` on a public GitHub repo.
+- **The real PR test on a throwaway repo has NOT been run**: no `GITHUB_TOKEN` was
+  available. What is tested instead: commit and push against a local bare repository
+  (only the `autopatch/*` branch appears, `main` does not move, pushes to `main`/`master`
+  raise), and `open_pr` with a fake PyGithub client.
