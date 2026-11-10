@@ -179,5 +179,13 @@ Choices made where the spec was ambiguous, and anything added beyond it.
   run-listing helpers are in `logging_utils.py` so they are tested without Streamlit; the
   page itself has a smoke test that is skipped when Streamlit is not installed (as in CI).
 - **No demo GIF or video** was recorded; the README says so.
-- **Not verified on a fresh clone with a real key.** The README quickstart was run on a
-  fresh clone up to the model call (see the final summary for exactly what ran).
+- **Fresh-clone check, without a real key.** The README quickstart was followed on a fresh
+  clone in a new virtualenv: install, `cp .env.example .env`, `build-sandbox`, create the
+  buggy repo, `fix --dry-run`. With no key it stops with the "Missing required setting"
+  message. With an invalid key the baseline reproduces the failure, OpenRouter answers
+  401 on each of the three attempts, and the run ends `failed` with a report. A fix by a
+  real model has NOT been observed.
+- **`tests/test_llm_wire.py`** points the real OpenAI SDK client at a local HTTP server
+  and checks the request (`Authorization: Bearer <key>`, `/chat/completions`, model,
+  `temperature=0`) and the handling of a 401. Added because the invalid-key run above
+  returned "Missing Authentication header", and that needed ruling out as a client bug.

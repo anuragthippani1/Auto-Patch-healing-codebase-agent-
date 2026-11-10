@@ -28,6 +28,7 @@ class Context:
 
     @property
     def total_chars(self) -> int:
+        """Combined length of all selected files."""
         return sum(len(c) for c in (*self.source_files.values(), *self.test_files.values()))
 
 

@@ -16,7 +16,7 @@ Built and verified without API keys, so these things are still open:
 
 | Area | State |
 |---|---|
-| Sandbox, edits, localization, graph loop, CLI, PR guard, eval harness | Tested: 148 tests pass on macOS, 13 of them against the real Docker sandbox |
+| Sandbox, edits, localization, graph loop, CLI, PR guard, eval harness | Tested: 150 tests pass on macOS, 13 of them against the real Docker sandbox |
 | GitHub Actions CI, and Linux in general | **Not run yet.** The workflow file exists but has never executed |
 | Real LLM call through OpenRouter | **Not run yet.** Needs `OPENROUTER_API_KEY`. Only mocked so far |
 | Real pull request on GitHub | **Not run yet.** Needs `GITHUB_TOKEN`. Tested against a local bare repo and a fake API client |

@@ -84,6 +84,7 @@ def _copy_ignore(work_dir: Path) -> Callable[[str, list[str]], set[str]]:
     """Ignore function for copytree: junk directories, plus the destination itself."""
 
     def ignore(directory: str, names: list[str]) -> set[str]:
+        """Names in `directory` that copytree must skip."""
         skipped = set(COPY_IGNORE(directory, names))
         skipped.update(name for name in names if Path(directory, name).resolve() == work_dir)
         return skipped

@@ -51,6 +51,7 @@ class Row:
 
     @property
     def fixed_label(self) -> str:
+        """Text for the 'Fixed' column."""
         if self.status == "no_repro":
             return "skipped (baseline tests pass)"
         return "yes" if self.status == "fixed" else "no"
@@ -170,6 +171,7 @@ def run_all(bug_ids: list[str], workspace: Path) -> int:
 
 
 def main() -> int:
+    """Parse the command line and run the eval or the check. Returns the exit code."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--only", help="comma-separated bug ids, e.g. 01,02,03")
     parser.add_argument("--check", action="store_true", help="only verify the bugs; no LLM calls")
